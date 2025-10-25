@@ -1,0 +1,92 @@
+{% extends "core/base.html" %}
+
+{% block title %}Liste des Fournisseurs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <!-- In supplier_list.html -->
+<h1 class="h2">
+    <i class="bi bi-building"></i> Liste des Fournisseurs
+    {% if query %} <small class="text-muted">Résultats pour "{{ query }}"</small> {% endif %}
+</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'supplier-create' %}" class="btn btn-success me-2">
+            <i class="bi bi-building-add"></i> Nouveau Fournisseur
+        </a>
+        <a href="{% url 'credit-create' %}" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-plus"></i> Nouveau Crédit
+        </a>
+    </div>
+</div>
+
+
+<!-- NEW: SEARCH BAR -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form method="get" action="{% url 'supplier-list' %}">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Rechercher un fournisseur..." 
+                       name="q" value="{{ query }}" aria-label="Search">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+                {% if query %}
+                <a href="{% url 'supplier-list' %}" class="btn btn-outline-danger">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Contact</th>
+                        <th>Téléphone</th>
+                        <th class="text-end">Solde Restant</th>
+                        <th>Date Création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supplier in suppliers %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'supplier-detail' supplier.id %}" class="text-decoration-none">
+                                <strong>{{ supplier.name }}</strong>
+                            </a>
+                        </td>
+                        <td>{{ supplier.contact_person|default:"-" }}</td>
+                        <td>{{ supplier.phone|default:"-" }}</td>
+                        <td class="text-end fw-bold {% if supplier.get_remaining_balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                            {{ supplier.get_remaining_balance }} FCFA
+                        </td>                        
+                        <td>{{ supplier.created_at|date:"d/m/Y" }}</td>
+                        <td>
+                            <a href="{% url 'supplier-detail' supplier.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Détails
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox"></i><br>
+                            Aucun fournisseur enregistré.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

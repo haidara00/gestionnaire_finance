@@ -1,0 +1,127 @@
+{% extends "core/base.html" %}
+
+{% block title %}Détails du Fournisseur: {{ supplier }}{% endblock %}
+
+{% block content %}
+<!-- Header with Back Button and Supplier Name -->
+<div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+    <div>
+        <a href="{% url 'supplier-list' %}" class="btn btn-outline-secondary btn-sm mb-2">
+            <i class="bi bi-arrow-left"></i> Retour à la liste
+        </a>
+        <h1 class="h3 mb-0"><i class="bi bi-building"></i> {{ supplier.name }}</h1>
+        {% if supplier.contact_person %}<p class="text-muted mb-0">Contact: {{ supplier.contact_person }}</p>{% endif %}
+    </div>
+    <span class="badge bg-info fs-6">{{ supplier.total_credit }} FCFA</span>
+</div>
+
+<!-- Contact Info Card -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i> Informations de Contact
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3"><strong>Contact:</strong><br>{{ supplier.contact_person|default:"-" }}</div>
+                    <div class="col-md-3"><strong>Téléphone:</strong><br>{{ supplier.phone|default:"-" }}</div>
+                    <div class="col-md-3"><strong>Email:</strong><br>{{ supplier.email|default:"-" }}</div>
+                    <div class="col-md-3"><strong>Adresse:</strong><br>{{ supplier.address|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Credits and Payments Section -->
+<div class="row">
+    <!-- List of Credits -->
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-list-ul"></i> Historique des Crédits</span>
+                <a href="{% url 'credit-create' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus-circle"></i> Ajouter
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for credit in credits %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ credit.description }}</h6>
+                            <strong>{{ credit.amount }} FCFA</strong>
+                        </div>
+                        <p class="mb-1 text-muted">Date: {{ credit.date_incurred|date:"d/m/Y" }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="{% if credit.status == 'Soldé' %}text-success{% else %}text-warning{% endif %}">
+                                <i class="bi bi-{% if credit.status == 'Soldé' %}check-circle-fill{% else %}clock-history{% endif %}"></i>
+                                {{ credit.status }} - Solde: {{ credit.remaining_balance }} FCFA
+                            </small>
+                            <!-- Payment History Accordion Toggle -->
+                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#payments-{{ credit.id }}">
+                                <i class="bi bi-chevron-down"></i> Voir les paiements
+                            </button>
+                        </div>
+                        <!-- Payment History Collapse -->
+                        <div class="collapse mt-2" id="payments-{{ credit.id }}">
+                            <div class="card card-body">
+                                <h6 class="mb-2">Historique des Paiements</h6>
+                                {% for payment in credit.payments.all %}
+                                <div class="d-flex justify-content-between border-bottom pb-1 mb-1">
+                                    <div>{{ payment.date_paid|date:"d/m/Y" }}</div>
+                                    <div class="fw-bold">{{ payment.amount }} FCFA</div>
+                                    <div class="text-muted"><small>{{ payment.notes|default:"-" }}</small></div>
+                                </div>
+                                {% empty %}
+                                <p class="text-muted mb-0">Aucun paiement enregistré.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item text-center text-muted py-4">
+                        <i class="bi bi-inbox"></i><br>
+                        Aucun crédit enregistré.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Payment Form -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-cash-coin"></i> Enregistrer un Paiement
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ payment_form.credit.id_for_label }}" class="form-label">Crédit concerné</label>
+                        {{ payment_form.credit }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ payment_form.amount.id_for_label }}" class="form-label">Montant payé (FCFA)</label>
+                        {{ payment_form.amount }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ payment_form.date_paid.id_for_label }}" class="form-label">Date du paiement</label>
+                        {{ payment_form.date_paid }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ payment_form.notes.id_for_label }}" class="form-label">Notes (optionnel)</label>
+                        {{ payment_form.notes }}
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-check-circle"></i> Enregistrer le Paiement
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

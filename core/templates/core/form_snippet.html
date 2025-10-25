@@ -1,0 +1,54 @@
+<form method="post">
+    {% csrf_token %}
+    
+    <!-- Django will output non-field errors here (e.g., form-wide validation errors) -->
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Loop through each field in the form -->
+    {% for field in form %}
+    <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label">
+            <strong>{{ field.label }}</strong>
+            {% if field.field.required %} <span class="text-danger">*</span> {% endif %}
+        </label>
+        
+        <!-- Render the input field -->
+        {{ field }}
+        
+        <!-- Add help text if it exists -->
+        {% if field.help_text %}
+        <div class="form-text">{{ field.help_text }}</div>
+        {% endif %}
+        
+        <!-- Show any field-specific errors -->
+        {% for error in field.errors %}
+        <div class="invalid-feedback" style="display: block;">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check-circle"></i> Sauvegarder
+    </button>
+    <a href="{{ request.META.HTTP_REFERER|default:'/' }}" class="btn btn-outline-secondary">Annuler</a>
+</form>
+
+<!-- This script adds Bootstrap's validation classes to Django's error fields -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add 'is-invalid' class to any field that has errors
+        {% for field in form %}
+            {% if field.errors %}
+                document.getElementById('{{ field.id_for_label }}').classList.add('is-invalid');
+            {% endif %}
+        {% endfor %}
+    });
+</script>

@@ -1,0 +1,88 @@
+{% extends "core/base.html" %}
+
+{% block title %}Liste des Débiteurs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <!-- In debtor_list.html -->
+<h1 class="h2">
+    <i class="bi bi-people-fill"></i> Liste des Débiteurs
+    {% if query %} <small class="text-muted">Résultats pour "{{ query }}"</small> {% endif %}
+</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'debtor-create' %}" class="btn btn-success me-2">
+            <i class="bi bi-person-plus"></i> Nouveau Débiteur
+        </a>
+        <a href="{% url 'debt-create' %}" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-plus"></i> Nouvelle Dette
+        </a>
+    </div>
+</div>
+
+<!-- NEW: SEARCH BAR -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form method="get" action="{% url 'debtor-list' %}">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Rechercher un débiteur..." 
+                       name="q" value="{{ query }}" aria-label="Search">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+                {% if query %}
+                <a href="{% url 'debtor-list' %}" class="btn btn-outline-danger">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Entreprise</th>
+                        <th>Téléphone</th>
+                        <th class="text-end">Solde Restant</th>
+                        <th>Date Création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for debtor in debtors %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'debtor-detail' debtor.id %}" class="text-decoration-none">
+                                <strong>{{ debtor.first_name }} {{ debtor.last_name }}</strong>
+                            </a>
+                        </td>
+                        <td>{{ debtor.company|default:"-" }}</td>
+                        <td>{{ debtor.phone|default:"-" }}</td>
+            <td class="text-end fw-bold {% if debtor.get_remaining_balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                {{ debtor.get_remaining_balance }} FCFA</td>                        
+                <td>{{ debtor.created_at|date:"d/m/Y" }}</td>
+                        <td>
+                            <a href="{% url 'debtor-detail' debtor.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Détails
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox"></i><br>
+                            Aucun débiteur enregistré.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

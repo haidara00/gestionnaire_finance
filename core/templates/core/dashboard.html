@@ -1,0 +1,110 @@
+{% extends "core/base.html" %}
+
+{% block title %}Tableau de Bord{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Tableau de Bord Financier</h1>
+</div>
+
+<!-- Key Performance Indicators (KPIs) -->
+<div class="row mb-4">
+    <!-- ... (keep your existing KPI cards here) ... -->
+</div>
+
+<!-- CHARTS SECTION -->
+<div class="row mb-4">
+    <!-- Top Debtors Chart -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-people-fill"></i> Top 5 Débiteurs (Solde Restant)
+            </div>
+            <div class="card-body">
+                <canvas id="debtorChart" width="400" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Suppliers Chart -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-building"></i> Top 5 Fournisseurs (Solde Restant)
+            </div>
+            <div class="card-body">
+                <canvas id="supplierChart" width="400" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity & Lists -->
+<div class="row">
+    <!-- ... (keep your recent activity lists here) ... -->
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- JavaScript to render charts -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Debtor Chart
+        const debtorCtx = document.getElementById('debtorChart').getContext('2d');
+        const debtorChart = new Chart(debtorCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ debtor_labels|safe }},
+                datasets: [{
+                    label: 'Solde Restant (FCFA)',
+                    data: {{ debtor_data|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'FCFA'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Supplier Chart
+        const supplierCtx = document.getElementById('supplierChart').getContext('2d');
+        const supplierChart = new Chart(supplierCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ supplier_labels|safe }},
+                datasets: [{
+                    label: 'Solde Restant (FCFA)',
+                    data: {{ supplier_data|safe }},
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'FCFA'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
